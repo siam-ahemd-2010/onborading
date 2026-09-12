@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Welcome to AutoCraft Agency</title>
+    <!-- Remixicon for Facebook Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary-orange: #ff3b00;
+            --secondary-orange: #ff6a00;
+            --orange-soft: #fff2ee;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #ffe4dc;
+            --card-shadow: 0 10px 30px rgba(255, 59, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 106, 0, 0.08) 0px, transparent 40%),
+                radial-gradient(at 100% 100%, rgba(255, 59, 0, 0.05) 0px, transparent 40%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        /* Container Layout - Compact for Mobile */
+        .container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px 18px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--card-shadow);
+            margin: auto;
+        }
+
+        /* Brand Agency Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .agency-icon {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 4px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(255, 59, 0, 0.1);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            line-height: 1.25;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-title span {
+            color: var(--primary-orange);
+            display: inline-block;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.45;
+            padding: 0 4px;
+        }
+
+        /* Input Controls */
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+        }
+
+        .input-label span {
+            font-size: 11px;
+            color: var(--primary-orange);
+            background: var(--orange-soft);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            background: #fafafa;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text-dark);
+            font-size: 13.5px;
+            line-height: 1.4;
+            outline: none;
+            resize: none;
+            transition: border-color 0.2s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-orange);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 59, 0, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        /* Single-Line Mobile Optimized Button */
+        .btn-fb-connect {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(255, 59, 0, 0.25);
+            white-space: nowrap;
+        }
+
+        .btn-fb-connect:active {
+            transform: scale(0.98);
+        }
+
+        .btn-fb-connect i {
+            font-size: 20px;
+            background: #ffffff;
+            color: var(--primary-orange);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Dynamic Status Feedback Box */
+        .status-box {
+            margin-top: 14px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+        }
+
+        .status-success {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            color: #047857;
+        }
+
+        .status-error {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #b91c1c;
+        }
+
+        /* Small Mobile Display Tweaks */
+        @media (min-width: 480px) {
+            .container {
+                padding: 32px 28px;
+            }
+            .brand-title {
+                font-size: 24px;
+            }
+            .agency-icon {
+                width: 64px;
+                height: 64px;
+            }
+            .btn-fb-connect {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="brand-header">
+            <img src="autocraft.png" alt="AutoCraft Agency Icon" class="agency-icon">
+            <h1 class="brand-title">Welcome to <span>AutoCraft Agency</span></h1>
+            <p class="brand-subtitle">আপনার ফেসবুক পেজে AI অটো-রিপ্লাই সেটআপ করতে নির্দেশনা লিখুন এবং পেজ কানেক্ট করুন।</p>
+        </div>
+
+        <div class="input-group">
+            <div class="input-label">
+                <label for="systemPrompt">AI System Prompt</label>
+                <span>প্রয়োজনীয়</span>
+            </div>
+            <textarea id="systemPrompt" placeholder="উদাহরণ: আপনি একজন সেলস এক্সপার্ট। আমাদের পেজের প্রোডাক্টের দাম ও ডেলিভারি সংক্রান্ত মেসেজের উত্তর দিন..."></textarea>
+        </div>
+
+        <button class="btn-fb-connect" onclick="connectFacebook()">
+            <i class="ri-facebook-fill"></i>
+            <span>Connect Facebook Page</span>
+        </button>
+
+        <div id="statusBox" class="status-box"></div>
+    </div>
+
+<script>
+    const META_APP_ID = '216660024200814'; 
+    const N8N_WEBHOOK_URL = 'https://n8n-production-bc1a4.up.railway.app/webhook/facebook';
+
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : META_APP_ID,
+            cookie     : true,
+            xfbml      : true,
+            version    : 'v19.0'
+        });
+    };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function showStatus(msg, isSuccess) {
+        const box = document.getElementById('statusBox');
+        box.style.display = 'block';
+        box.className = 'status-box ' + (isSuccess ? 'status-success' : 'status-error');
+        box.innerText = msg;
+    }
+
+    function connectFacebook() {
+        const prompt = document.getElementById('systemPrompt').value.trim();
+        if(!prompt) {
+            alert('দয়া করে আপনার বটের জন্য System Prompt লিখে নিন।');
+            return;
+        }
+
+        FB.login(function(response) {
+            if (response.authResponse) {
+                const userToken = response.authResponse.accessToken;
+                
+                FB.api('/me/accounts', { access_token: userToken }, function(pageResponse) {
+                    if (pageResponse && pageResponse.data && pageResponse.data.length > 0) {
+                        const selectedPage = pageResponse.data[0]; 
+                        
+                        const payload = {
+                            system_prompt: prompt,
+                            page_id: selectedPage.id,
+                            page_name: selectedPage.name,
+                            page_access_token: selectedPage.access_token
+                        };
+
+                        fetch(N8N_WEBHOOK_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(res => {
+                            if(res.ok) {
+                                showStatus('সফলভাবে কানেক্ট হয়েছে! আপনার পেজে অটো-রিপ্লাই চালু হয়ে গেছে।', true);
+                            } else {
+                                showStatus('n8n সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে।', false);
+                            }
+                        })
+                        .catch(err => {
+                            showStatus('Error: ' + err.message, false);
+                        });
+
+                    } else {
+                        showStatus('কোনো ফেসবুক পেজ পাওয়া যায়নি!', false);
+                    }
+                });
+
+            } else {
+                showStatus('ফেসবুক লগইন সম্পন্ন হয়নি।', false);
+            }
+        }, { scope: 'pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata' });
+    }
+</script>
+</body>
+</html>
