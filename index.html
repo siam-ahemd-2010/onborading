@@ -227,7 +227,7 @@
             <select id="pageSelect"></select>
         </div>
 
-        <button id="mainBtn" class="btn-fb-connect" onclick="connectFacebook()">
+        <button id="mainBtn" class="btn-fb-connect" onclick="handleMainAction()">
             <i class="ri-facebook-fill"></i>
             <span id="btnText">Connect Facebook Page</span>
         </button>
@@ -236,7 +236,6 @@
     </div>
 
 <script>
-    // Updated Live Meta App ID
     const META_APP_ID = '2136940980583188'; 
     const N8N_WEBHOOK_URL = 'https://n8n-production-bc1a4.up.railway.app/webhook/facebook-onboarding';
     
@@ -266,7 +265,8 @@
         box.innerText = msg;
     }
 
-    function connectFacebook() {
+    // Main logic router to handle button click safely
+    function handleMainAction() {
         const prompt = document.getElementById('systemPrompt').value.trim();
         if(!prompt) {
             alert('দয়া করে আপনার বটের জন্য System Prompt লিখে নিন।');
@@ -275,13 +275,18 @@
 
         if(fetchedPages.length > 0) {
             submitToN8N(prompt);
-            return;
+        } else {
+            connectFacebook();
         }
+    }
 
+    function connectFacebook() {
+        // Direct FB.login call without delay to prevent popup blocking
         FB.login(function(response) {
             if (response.authResponse) {
                 const userToken = response.authResponse.accessToken;
-                
+                showStatus('পেজ লিস্ট লোড হচ্ছে...', true);
+
                 fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${userToken}`)
                 .then(res => res.json())
                 .then(pageResponse => {
@@ -312,10 +317,11 @@
                 });
 
             } else {
-                showStatus('ফেসবুক লগইন সম্পন্ন হয়নি।', false);
+                showStatus('ফেসবুক লগইন সম্পন্ন হয়নি বা পপ-আপ ক্যানসেল করা হয়েছে।', false);
             }
         }, { 
-            scope: 'pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata',
+            // Correct scopes including public_profile
+            scope: 'public_profile,pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata',
             auth_type: 'rerequest'
         });
     }
