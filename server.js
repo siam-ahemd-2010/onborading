@@ -12,7 +12,7 @@ app.post('/api/connect-page', async (req, res) => {
   const { page_id, page_access_token, page_name, system_prompt, client_email } = req.body;
 
   try {
-    // ফেসবুক গ্রাফ এপিআই দিয়ে পেজ সাবস্ক্রাইব করানো
+    // ফেসবুক গ্রাফ এপিআই দিয়ে পেজ সাবস্ক্রাইব করানো
     const subscribeUrl = `https://graph.facebook.com/v19.0/${page_id}/subscribed_apps`;
     await axios.post(subscribeUrl, null, {
       params: {
@@ -21,9 +21,18 @@ app.post('/api/connect-page', async (req, res) => {
       }
     });
 
-    // এখানে আপনার গুগল শিট বা ডাটাবেজে ডাটা সেভ করার লজিক বসাবেন
-    // যেখানে status: "active" বাই ডিফল্ট থাকবে
-    console.log(`Page ${page_name} subscribed and saved successfully!`);
+    // n8n Webhook এ ডাটা পাঠানোর কোড (আপনার n8n এর Webhook URL এখানে বসাবেন)
+    const n8nWebhookUrl = 'https://n8n-production-bc1a4.up.railway.app/webhook/facebook-onboarding'; 
+    await axios.post(n8nWebhookUrl, {
+      page_id,
+      page_name,
+      page_access_token,
+      system_prompt,
+      client_email: client_email || 'N/A',
+      status: 'active' // বাই ডিফল্ট স্ট্যাটাস active থাকবে
+    });
+
+    console.log(`Page ${page_name} subscribed and saved to Google Sheet via n8n!`);
 
     res.status(200).json({ success: true, message: "Page connected and subscribed successfully!" });
   } catch (error) {
@@ -34,10 +43,9 @@ app.post('/api/connect-page', async (req, res) => {
 
 // ২. ক্লায়েন্টের অটোমেশন ON/OFF করার API
 app.post('/api/toggle-automation', async (req, res) => {
-  const { page_id, status } = req.body; // status হতে পারে "active" বা "paused"
+  const { page_id, status } = req.body; 
 
   try {
-    // গুগল শিট বা ডাটাবেজে নির্দিষ্ট page_id এর স্ট্যাটাস আপডেট করুন
     console.log(`Automation for Page ID ${page_id} is now ${status}`);
     
     res.status(200).json({ success: true, message: `Automation successfully ${status}` });
