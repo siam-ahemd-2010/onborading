@@ -236,7 +236,8 @@
     </div>
 
 <script>
-    const META_APP_ID = '2166600024200814'; 
+    // Updated Live Meta App ID
+    const META_APP_ID = '2136940980583188'; 
     const N8N_WEBHOOK_URL = 'https://n8n-production-bc1a4.up.railway.app/webhook/facebook-onboarding';
     
     let fetchedPages = [];
@@ -272,18 +273,15 @@
             return;
         }
 
-        // Phase 2: If pages are already fetched, submit to n8n
         if(fetchedPages.length > 0) {
             submitToN8N(prompt);
             return;
         }
 
-        // Phase 1: Request Login and Permissions
         FB.login(function(response) {
             if (response.authResponse) {
                 const userToken = response.authResponse.accessToken;
                 
-                // Direct Graph API Call with User Token to ensure page fetch
                 fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${userToken}`)
                 .then(res => res.json())
                 .then(pageResponse => {
