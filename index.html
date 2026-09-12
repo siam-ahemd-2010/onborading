@@ -38,7 +38,6 @@
             padding: 12px;
         }
 
-        /* Container Layout - Compact for Mobile */
         .container {
             background: #ffffff;
             border: 1px solid var(--border-color);
@@ -50,7 +49,6 @@
             margin: auto;
         }
 
-        /* Brand Agency Header */
         .brand-header {
             text-align: center;
             margin-bottom: 20px;
@@ -89,7 +87,6 @@
             padding: 0 4px;
         }
 
-        /* Input Controls */
         .input-group {
             margin-bottom: 18px;
         }
@@ -112,32 +109,36 @@
             border-radius: 4px;
         }
 
-        textarea {
+        textarea, select {
             width: 100%;
-            height: 110px;
             background: #fafafa;
             border: 1.5px solid #e2e8f0;
             border-radius: 12px;
             padding: 12px;
             color: var(--text-dark);
             font-size: 13.5px;
-            line-height: 1.4;
             outline: none;
-            resize: none;
             transition: border-color 0.2s ease;
         }
 
-        textarea:focus {
+        textarea {
+            height: 100px;
+            line-height: 1.4;
+            resize: none;
+        }
+
+        select {
+            height: 48px;
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        textarea:focus, select:focus {
             border-color: var(--primary-orange);
             background: #ffffff;
             box-shadow: 0 0 0 3px rgba(255, 59, 0, 0.1);
         }
 
-        textarea::placeholder {
-            color: #94a3b8;
-        }
-
-        /* Single-Line Mobile Optimized Button */
         .btn-fb-connect {
             width: 100%;
             background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
@@ -173,7 +174,6 @@
             flex-shrink: 0;
         }
 
-        /* Dynamic Status Feedback Box */
         .status-box {
             margin-top: 14px;
             padding: 10px;
@@ -195,22 +195,11 @@
             color: #b91c1c;
         }
 
-        /* Small Mobile Display Tweaks */
         @media (min-width: 480px) {
-            .container {
-                padding: 32px 28px;
-            }
-            .brand-title {
-                font-size: 24px;
-            }
-            .agency-icon {
-                width: 64px;
-                height: 64px;
-            }
-            .btn-fb-connect {
-                font-size: 16px;
-                padding: 15px;
-            }
+            .container { padding: 32px 28px; }
+            .brand-title { font-size: 24px; }
+            .agency-icon { width: 64px; height: 64px; }
+            .btn-fb-connect { font-size: 16px; padding: 15px; }
         }
     </style>
 </head>
@@ -226,14 +215,21 @@
         <div class="input-group">
             <div class="input-label">
                 <label for="systemPrompt">AI System Prompt</label>
-                <span>প্রয়োজনীয়</span>
+                <span>প্রয়োজনীয়</span>
             </div>
             <textarea id="systemPrompt" placeholder="উদাহরণ: আপনি একজন সেলস এক্সপার্ট। আমাদের পেজের প্রোডাক্টের দাম ও ডেলিভারি সংক্রান্ত মেসেজের উত্তর দিন..."></textarea>
         </div>
 
-        <button class="btn-fb-connect" onclick="connectFacebook()">
+        <div class="input-group" id="pageSelectGroup" style="display: none;">
+            <div class="input-label">
+                <label for="pageSelect">ফেসবুক পেজ সিলেক্ট করুন</label>
+            </div>
+            <select id="pageSelect"></select>
+        </div>
+
+        <button id="mainBtn" class="btn-fb-connect" onclick="connectFacebook()">
             <i class="ri-facebook-fill"></i>
-            <span>Connect Facebook Page</span>
+            <span id="btnText">Connect Facebook Page</span>
         </button>
 
         <div id="statusBox" class="status-box"></div>
@@ -242,6 +238,8 @@
 <script>
     const META_APP_ID = '2166600024200814'; 
     const N8N_WEBHOOK_URL = 'https://n8n-production-bc1a4.up.railway.app/webhook/facebook-onboarding';
+    
+    let fetchedPages = [];
 
     window.fbAsyncInit = function() {
         FB.init({
@@ -274,46 +272,89 @@
             return;
         }
 
+        // Phase 2: If pages are already fetched, submit to n8n
+        if(fetchedPages.length > 0) {
+            submitToN8N(prompt);
+            return;
+        }
+
+        // Phase 1: Request Login and Permissions
         FB.login(function(response) {
             if (response.authResponse) {
                 const userToken = response.authResponse.accessToken;
                 
-                FB.api('/me/accounts', { access_token: userToken }, function(pageResponse) {
-                    if (pageResponse && pageResponse.data && pageResponse.data.length > 0) {
-                        const selectedPage = pageResponse.data[0]; 
-                        
-                        const payload = {
-                            system_prompt: prompt,
-                            page_id: selectedPage.id,
-                            page_name: selectedPage.name,
-                            page_access_token: selectedPage.access_token
-                        };
+                // Direct Graph API Call with User Token to ensure page fetch
+                fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${userToken}`)
+                .then(res => res.json())
+                .then(pageResponse => {
+                    console.log("Pages API Response:", pageResponse);
 
-                        fetch(N8N_WEBHOOK_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        })
-                        .then(res => {
-                            if(res.ok) {
-                                showStatus('সফলভাবে কানেক্ট হয়েছে! আপনার পেজে অটো-রিপ্লাই চালু হয়ে গেছে।', true);
-                            } else {
-                                showStatus('n8n সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে।', false);
-                            }
-                        })
-                        .catch(err => {
-                            showStatus('Error: ' + err.message, false);
+                    if (pageResponse.data && pageResponse.data.length > 0) {
+                        fetchedPages = pageResponse.data;
+                        
+                        const pageSelect = document.getElementById('pageSelect');
+                        pageSelect.innerHTML = '';
+                        
+                        fetchedPages.forEach((pg, idx) => {
+                            const opt = document.createElement('option');
+                            opt.value = idx;
+                            opt.textContent = pg.name;
+                            pageSelect.appendChild(opt);
                         });
 
+                        document.getElementById('pageSelectGroup').style.display = 'block';
+                        document.getElementById('btnText').textContent = 'Confirm & Save Automation';
+                        showStatus('পেজ সফলভাবে পাওয়া গেছে! পেজ সিলেক্ট করে নিচের বাটনে চাপ দিন।', true);
                     } else {
-                        showStatus('কোনো ফেসবুক পেজ পাওয়া যায়নি!', false);
+                        showStatus('কোনো ফেসবুক পেজ পাওয়া যায়নি! নিশ্চিত করুন আপনার আইডিতে পেজের Admin/Full Access আছে।', false);
                     }
+                })
+                .catch(err => {
+                    showStatus('Error fetching pages: ' + err.message, false);
                 });
 
             } else {
-                showStatus('ফেসবুক লগইন সম্পন্ন হয়নি।', false);
+                showStatus('ফেসবুক লগইন সম্পন্ন হয়নি।', false);
             }
-        }, { scope: 'pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata' });
+        }, { 
+            scope: 'pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata',
+            auth_type: 'rerequest'
+        });
+    }
+
+    function submitToN8N(prompt) {
+        const pageIdx = document.getElementById('pageSelect').value;
+        const selectedPage = fetchedPages[pageIdx];
+
+        if(!selectedPage) {
+            showStatus('দয়া করে একটি পেজ সিলেক্ট করুন।', false);
+            return;
+        }
+
+        const payload = {
+            system_prompt: prompt,
+            page_id: selectedPage.id,
+            page_name: selectedPage.name,
+            page_access_token: selectedPage.access_token
+        };
+
+        showStatus('n8n-এ সেভ করা হচ্ছে...', true);
+
+        fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if(res.ok) {
+                showStatus('সফলভাবে কানেক্ট হয়েছে! আপনার পেজে অটো-রিপ্লাই চালু হয়ে গেছে।', true);
+            } else {
+                showStatus('n8n সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে।', false);
+            }
+        })
+        .catch(err => {
+            showStatus('Error: ' + err.message, false);
+        });
     }
 </script>
 </body>
