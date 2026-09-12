@@ -122,7 +122,8 @@
 
 <script>
     const META_APP_ID = '2136940980583188'; 
-    const N8N_WEBHOOK_URL = 'https://n8n-production-bc1a4.up.railway.app/webhook/facebook-onboarding';
+    // লোকাল টেস্টের জন্য http://localhost:3000, রেন্ডারে ডিপ্লয় করার পর রেন্ডারের লাইভ URL বসাবেন
+    const BACKEND_URL = 'http://localhost:3000/api/connect-page'; 
     const REDIRECT_URI = window.location.origin + window.location.pathname;
     
     let fetchedPages = [];
@@ -162,7 +163,7 @@
         }
 
         if(fetchedPages.length > 0) {
-            submitToN8N(prompt);
+            submitToBackend(prompt);
         } else {
             // Direct Page Redirect - Bypass Popup Blockers Completely
             const scope = 'public_profile,pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata';
@@ -202,7 +203,7 @@
         });
     }
 
-    function submitToN8N(prompt) {
+    function submitToBackend(prompt) {
         const pageIdx = document.getElementById('pageSelect').value;
         const selectedPage = fetchedPages[pageIdx];
 
@@ -218,23 +219,24 @@
             page_access_token: selectedPage.access_token
         };
 
-        showStatus('n8n-এ সেভ করা হচ্ছে...', true);
+        showStatus('ব্যাকএন্ডে পেজ সাবস্ক্রাইব ও সেভ করা হচ্ছে...', true);
 
-        fetch(N8N_WEBHOOK_URL, {
+        fetch(BACKEND_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => {
-            if(res.ok) {
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
                 localStorage.removeItem('saved_prompt'); // Clear storage after success
-                showStatus('সফলভাবে কানেক্ট হয়েছে! আপনার পেজে অটো-রিপ্লাই চালু হয়ে গেছে।', true);
+                showStatus('সফলভাবে কানেক্ট ও সাবস্ক্রাইব হয়েছে! আপনার পেজে অটো-রিপ্লাই চালু হয়ে গেছে।', true);
             } else {
-                showStatus('n8n সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে।', false);
+                showStatus('সমস্যা হয়েছে: ' + (data.error || 'অজানা ত্রুটি'), false);
             }
         })
         .catch(err => {
-            showStatus('Error: ' + err.message, false);
+            showStatus('Network Error: ' + err.message, false);
         });
     }
 </script>
